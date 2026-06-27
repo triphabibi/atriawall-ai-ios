@@ -52,8 +52,8 @@ struct StudioWorkspaceView: View {
                 }
 
                 HStack(spacing: 10) {
-                    MetricPill(title: "Wall width", value: "\(project.wallWidth, specifier: "%.0f") \(project.unit.symbol)", systemImage: "arrow.left.and.right")
-                    MetricPill(title: "Wall height", value: "\(project.wallHeight, specifier: "%.0f") \(project.unit.symbol)", systemImage: "arrow.up.and.down")
+                    MetricPill(title: "Wall width", value: "\(Int(project.wallWidth.rounded())) \(project.unit.symbol)", systemImage: "arrow.left.and.right")
+                    MetricPill(title: "Wall height", value: "\(Int(project.wallHeight.rounded())) \(project.unit.symbol)", systemImage: "arrow.up.and.down")
                     MetricPill(title: "Frames", value: project.frameCountLabel, systemImage: "photo.stack")
                 }
 
