@@ -1,0 +1,18 @@
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
+build/
+.swiftpm/
+Package.resolved
+
+# Local secrets. Keep real API keys out of git.
+Config/Secrets.xcconfig
+*.env
+
+# Generated archives and signing material.
+*.ipa
+*.xcarchive
+*.mobileprovision
+*.p12
+*.cer

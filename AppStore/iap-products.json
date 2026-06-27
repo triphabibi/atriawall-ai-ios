@@ -1,0 +1,37 @@
+{
+  "appName": "AtriaWall AI",
+  "currency": "USD",
+  "revenueCat": {
+    "entitlementId": "pro",
+    "offeringId": "default"
+  },
+  "products": [
+    {
+      "productId": "com.triphabibi.atriawallai.pro.weekly",
+      "referenceName": "AtriaWall Pro Weekly",
+      "type": "auto_renewable_subscription",
+      "duration": "P1W",
+      "priceUSD": "4.99",
+      "displayName": "AtriaWall Pro Weekly",
+      "description": "Weekly access to AI gallery wall layouts, AR preview, unlimited projects, and hanging guides."
+    },
+    {
+      "productId": "com.triphabibi.atriawallai.pro.monthly",
+      "referenceName": "AtriaWall Pro Monthly",
+      "type": "auto_renewable_subscription",
+      "duration": "P1M",
+      "priceUSD": "12.99",
+      "displayName": "AtriaWall Pro Monthly",
+      "description": "Monthly access to AI gallery wall layouts, AR preview, unlimited projects, and hanging guides."
+    },
+    {
+      "productId": "com.triphabibi.atriawallai.pro.yearly",
+      "referenceName": "AtriaWall Pro Yearly",
+      "type": "auto_renewable_subscription",
+      "duration": "P1Y",
+      "priceUSD": "49.99",
+      "displayName": "AtriaWall Pro Yearly",
+      "description": "Yearly access to AI gallery wall layouts, AR preview, unlimited projects, and hanging guides."
+    }
+  ]
+}

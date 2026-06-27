@@ -1,0 +1,25 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve packages
+        run: xcodebuild -resolvePackageDependencies -project AtriaWallAI.xcodeproj -scheme AtriaWallAI
+
+      - name: Build and test
+        run: |
+          xcodebuild \
+            -project AtriaWallAI.xcodeproj \
+            -scheme AtriaWallAI \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            test \
+            CODE_SIGNING_ALLOWED=NO
