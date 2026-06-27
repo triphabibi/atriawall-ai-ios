@@ -23,6 +23,7 @@
 		B10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000014 /* Assets.xcassets */; };
 		B10000000000000000000015 /* HangingMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000015 /* HangingMathTests.swift */; };
 		B10000000000000000000016 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = F10000000000000000000002 /* RevenueCat */; };
+		B10000000000000000000017 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000021 /* SubscriptionManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		C10000000000000000000018 /* Secrets.example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.example.xcconfig; sourceTree = "<group>"; };
 		C10000000000000000000019 /* AtriaWallAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AtriaWallAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C10000000000000000000020 /* AtriaWallAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtriaWallAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C10000000000000000000021 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 				C10000000000000000000002 /* AppConfig.swift */,
 				C10000000000000000000003 /* Models.swift */,
 				C10000000000000000000004 /* ProjectLibrary.swift */,
+				C10000000000000000000021 /* SubscriptionManager.swift */,
 				C10000000000000000000005 /* DesignSystem.swift */,
 				C10000000000000000000006 /* PhotoStore.swift */,
 				C10000000000000000000007 /* ContentView.swift */,
@@ -244,6 +247,7 @@
 				B10000000000000000000002 /* AppConfig.swift in Sources */,
 				B10000000000000000000003 /* Models.swift in Sources */,
 				B10000000000000000000004 /* ProjectLibrary.swift in Sources */,
+				B10000000000000000000017 /* SubscriptionManager.swift in Sources */,
 				B10000000000000000000005 /* DesignSystem.swift in Sources */,
 				B10000000000000000000006 /* PhotoStore.swift in Sources */,
 				B10000000000000000000007 /* ContentView.swift in Sources */,
