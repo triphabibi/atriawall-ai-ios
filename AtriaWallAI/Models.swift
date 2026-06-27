@@ -296,7 +296,7 @@ struct AIFrameSuggestion: Codable, Equatable {
         let safeXRatio = xRatio.clamped(to: 0.02...max(0.02, 0.98 - safeWidthRatio))
         let safeYRatio = yRatio.clamped(to: 0.02...max(0.02, 0.96 - safeHeightRatio))
 
-        FrameItem(
+        return FrameItem(
             title: fallbackTitle,
             x: safeXRatio * wallWidth,
             y: safeYRatio * wallHeight,
