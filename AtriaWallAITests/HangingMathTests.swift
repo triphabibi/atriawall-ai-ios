@@ -2,7 +2,7 @@ import XCTest
 @testable import AtriaWallAI
 
 final class HangingMathTests: XCTestCase {
-    func testNailPositionUsesCenterXAndHardwareOffset() {
+    func testNailPositionUsesCenterXAndHardwareOffset() throws {
         let project = WallProject(
             name: "Test",
             room: "Hall",
