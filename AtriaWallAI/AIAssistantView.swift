@@ -43,7 +43,7 @@ struct AIAssistantView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("AI Design Atelier")
                             .font(.system(.title3, design: .rounded, weight: .bold))
-                        Text(AppConfig.geminiAPIKey.isEmpty ? "Local preview mode until Gemini is configured" : "Gemini is ready for live design plans")
+                        Text(AppConfig.usesLocalAI || AppConfig.geminiAPIKey.isEmpty ? "Local preview mode until Gemini is configured" : "Gemini is ready for live design plans")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -182,7 +182,7 @@ struct AIAssistantView: View {
 
         do {
             plan = try await service.generatePlan(for: request)
-            message = AppConfig.geminiAPIKey.isEmpty ? "Using curated local plan. Add a Gemini key for live AI generation." : "Plan generated from Gemini."
+            message = AppConfig.usesLocalAI || AppConfig.geminiAPIKey.isEmpty ? "Using curated local plan. Add a Gemini key for live AI generation." : "Plan generated from Gemini."
         } catch {
             plan = AIDesignPlan.fallback(for: request)
             message = "Gemini was unavailable, so AtriaWall created a local premium plan instead."

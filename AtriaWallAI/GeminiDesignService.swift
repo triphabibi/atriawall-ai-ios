@@ -2,7 +2,7 @@ import Foundation
 
 struct GeminiDesignService {
     func generatePlan(for request: AIDesignRequest) async throws -> AIDesignPlan {
-        guard !AppConfig.geminiAPIKey.isEmpty else {
+        guard !AppConfig.usesLocalAI, !AppConfig.geminiAPIKey.isEmpty else {
             return AIDesignPlan.fallback(for: request)
         }
 
@@ -13,6 +13,7 @@ struct GeminiDesignService {
 
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
+        urlRequest.timeoutInterval = 20
         urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.addValue(AppConfig.geminiAPIKey, forHTTPHeaderField: "x-goog-api-key")
         urlRequest.httpBody = try JSONEncoder().encode(GeminiRequest(contents: [.init(parts: [.init(text: prompt(for: request))])]))

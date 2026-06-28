@@ -7,7 +7,12 @@ enum AppConfig {
 
     static var geminiModel: String {
         let value = sanitizedInfoValue("GeminiModel")
-        return value.isEmpty ? "gemini-3.5-flash" : value
+        return value.isEmpty ? "gemini-2.5-flash" : value
+    }
+
+    static var usesLocalAI: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        return environment["ATRIAWALL_USE_LOCAL_AI"] == "1"
     }
 
     static var revenueCatAPIKey: String {

@@ -7,6 +7,7 @@ final class AtriaWallAIUITests: XCTestCase {
 
     func testCorePlannerFlowUsesRealActions() throws {
         let app = XCUIApplication()
+        app.launchEnvironment["ATRIAWALL_USE_LOCAL_AI"] = "1"
         app.launch()
 
         XCTAssertTrue(app.staticTexts["AtriaWall Studio"].waitForExistence(timeout: 10))
