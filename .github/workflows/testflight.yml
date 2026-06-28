@@ -5,7 +5,7 @@ on:
 
 jobs:
   upload:
-    runs-on: macos-26-intel
+    runs-on: macos-latest
     env:
       ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
