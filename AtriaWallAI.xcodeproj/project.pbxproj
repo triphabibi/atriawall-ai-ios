@@ -24,10 +24,18 @@
 		B10000000000000000000015 /* HangingMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000015 /* HangingMathTests.swift */; };
 		B10000000000000000000016 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = F10000000000000000000002 /* RevenueCat */; };
 		B10000000000000000000017 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000021 /* SubscriptionManager.swift */; };
+		B10000000000000000000018 /* AtriaWallAIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000022 /* AtriaWallAIUITests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		D10000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000001;
+			remoteInfo = AtriaWallAI;
+		};
+		D10000000000000000000003 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A00000000000000000000001 /* Project object */;
 			proxyType = 1;
@@ -58,6 +66,8 @@
 		C10000000000000000000019 /* AtriaWallAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AtriaWallAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C10000000000000000000020 /* AtriaWallAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtriaWallAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C10000000000000000000021 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		C10000000000000000000022 /* AtriaWallAIUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtriaWallAIUITests.swift; sourceTree = "<group>"; };
+		C10000000000000000000023 /* AtriaWallAIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtriaWallAIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +86,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E10000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -84,6 +101,7 @@
 			children = (
 				G10000000000000000000002 /* AtriaWallAI */,
 				G10000000000000000000003 /* AtriaWallAITests */,
+				G10000000000000000000006 /* AtriaWallAIUITests */,
 				G10000000000000000000004 /* Config */,
 				G10000000000000000000005 /* Products */,
 			);
@@ -129,11 +147,20 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		G10000000000000000000006 /* AtriaWallAIUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C10000000000000000000022 /* AtriaWallAIUITests.swift */,
+			);
+			path = AtriaWallAIUITests;
+			sourceTree = "<group>";
+		};
 		G10000000000000000000005 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				C10000000000000000000019 /* AtriaWallAI.app */,
 				C10000000000000000000020 /* AtriaWallAITests.xctest */,
+				C10000000000000000000023 /* AtriaWallAIUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,6 +206,24 @@
 			productReference = C10000000000000000000020 /* AtriaWallAITests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A10000000000000000000003 /* AtriaWallAIUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000004 /* Build configuration list for PBXNativeTarget "AtriaWallAIUITests" */;
+			buildPhases = (
+				I10000000000000000000003 /* Sources */,
+				E10000000000000000000003 /* Frameworks */,
+				J10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D10000000000000000000004 /* PBXTargetDependency */,
+			);
+			name = AtriaWallAIUITests;
+			productName = AtriaWallAIUITests;
+			productReference = C10000000000000000000023 /* AtriaWallAIUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -193,6 +238,10 @@
 						CreatedOnToolsVersion = 16.0;
 					};
 					A10000000000000000000002 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = A10000000000000000000001;
+					};
+					A10000000000000000000003 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = A10000000000000000000001;
 					};
@@ -216,6 +265,7 @@
 			targets = (
 				A10000000000000000000001 /* AtriaWallAI */,
 				A10000000000000000000002 /* AtriaWallAITests */,
+				A10000000000000000000003 /* AtriaWallAIUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -230,6 +280,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		J10000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		J10000000000000000000003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -268,6 +325,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		I10000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000018 /* AtriaWallAIUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -275,6 +340,11 @@
 			isa = PBXTargetDependency;
 			target = A10000000000000000000001 /* AtriaWallAI */;
 			targetProxy = D10000000000000000000001 /* PBXContainerItemProxy */;
+		};
+		D10000000000000000000004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000001 /* AtriaWallAI */;
+			targetProxy = D10000000000000000000003 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -495,6 +565,54 @@
 			};
 			name = Release;
 		};
+		K10000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C10000000000000000000017 /* AppConfig.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triphabibi.atriawallai.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AtriaWallAI;
+			};
+			name = Debug;
+		};
+		K10000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C10000000000000000000017 /* AppConfig.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.triphabibi.atriawallai.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = AtriaWallAI;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -521,6 +639,15 @@
 			buildConfigurations = (
 				K10000000000000000000001 /* Debug */,
 				K10000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H10000000000000000000004 /* Build configuration list for PBXNativeTarget "AtriaWallAIUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				K10000000000000000000007 /* Debug */,
+				K10000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

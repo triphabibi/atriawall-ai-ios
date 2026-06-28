@@ -134,6 +134,7 @@ struct RootShellView: View {
                         .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("tab.\(tab.rawValue)")
             }
         }
         .padding(.horizontal, 16)

@@ -83,6 +83,7 @@ struct StudioWorkspaceView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Add frame")
+                    .accessibilityIdentifier("studio.addFrame")
                 }
 
                 HStack(spacing: 10) {
@@ -142,6 +143,7 @@ struct StudioWorkspaceView: View {
                             TemplateTile(template: template)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityIdentifier("template.\(template.name.replacingOccurrences(of: " ", with: "-").lowercased())")
                     }
                 }
                 .padding(.vertical, 2)
@@ -463,6 +465,7 @@ private struct FrameControls: View {
             TextField("Frame title", text: $frame.title)
                 .font(.system(.headline, design: .rounded, weight: .semibold))
                 .textFieldStyle(.roundedBorder)
+                .accessibilityIdentifier("frame.title")
 
             HStack {
                 Stepper(value: $frame.width, in: 6...72, step: 1) {
@@ -514,6 +517,7 @@ private struct FrameControls: View {
                     Label("Photo", systemImage: "photo")
                 }
                 .buttonStyle(.bordered)
+                .accessibilityIdentifier("frame.photo")
 
                 Button {
                     frame.isLocked.toggle()
@@ -522,18 +526,21 @@ private struct FrameControls: View {
                 }
                 .buttonStyle(.bordered)
                 .accessibilityLabel(frame.isLocked ? "Unlock frame" : "Lock frame")
+                .accessibilityIdentifier("frame.lock")
 
                 Button(action: onCopy) {
                     Image(systemName: "square.on.square")
                 }
                 .buttonStyle(.bordered)
                 .accessibilityLabel("Duplicate frame")
+                .accessibilityIdentifier("frame.copy")
 
                 Button(role: .destructive, action: onDelete) {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
                 .accessibilityLabel("Delete frame")
+                .accessibilityIdentifier("frame.delete")
             }
         }
     }

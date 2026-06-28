@@ -89,6 +89,7 @@ struct AIAssistantView: View {
                     Task { await generate() }
                 }
                 .disabled(isGenerating)
+                .accessibilityIdentifier("ai.generate")
             }
         }
     }
@@ -112,6 +113,7 @@ struct AIAssistantView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Color.atriaInk)
+                    .accessibilityIdentifier("ai.apply")
                 }
 
                 Text(plan.summary)

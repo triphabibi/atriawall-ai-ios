@@ -82,6 +82,7 @@ struct PaywallView: View {
                 AtriaButton(title: purchaseButtonTitle, systemImage: "lock.open.fill") {
                     Task { await purchaseSelectedPlan() }
                 }
+                .accessibilityIdentifier("paywall.continue")
 
                 Button {
                     Task { await subscriptions.restore() }
@@ -91,6 +92,7 @@ struct PaywallView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(Color.atriaInk.opacity(0.72))
+                .accessibilityIdentifier("paywall.restore")
 
                 statusText
             }
@@ -203,6 +205,7 @@ private struct PlanCard: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("plan.\(plan.title.lowercased())")
     }
 }
 
