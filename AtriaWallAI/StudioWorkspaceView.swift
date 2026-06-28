@@ -8,6 +8,7 @@ struct StudioWorkspaceView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
+                heroImage
                 projectHeader
                 templateStrip
 
@@ -19,6 +20,39 @@ struct StudioWorkspaceView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
+    }
+
+    private var heroImage: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image("HomeHero")
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity)
+                .frame(height: 220)
+                .clipped()
+
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.58)],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("AtriaWall Studio")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                Text(project.style)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(.white)
+            .padding(16)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(.white.opacity(0.62), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.14), radius: 18, x: 0, y: 12)
     }
 
     private var projectHeader: some View {

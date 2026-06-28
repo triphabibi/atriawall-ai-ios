@@ -22,6 +22,22 @@ struct PaywallView: View {
     private var hero: some View {
         GlassPanel {
             VStack(alignment: .leading, spacing: 12) {
+                Image("PaywallGallery")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 190)
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay(
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.18)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    )
+
                 HStack {
                     Image(systemName: "crown.fill")
                         .font(.title2)
