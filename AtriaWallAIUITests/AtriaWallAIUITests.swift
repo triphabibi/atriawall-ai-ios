@@ -25,7 +25,7 @@ final class AtriaWallAIUITests: XCTestCase {
         XCTAssertTrue(lockButton.waitForExistence(timeout: 5))
         lockButton.tap()
 
-        app.buttons["tab.ai"].tap()
+        app.buttons["AI"].tap()
         XCTAssertTrue(app.staticTexts["AI Design Atelier"].waitForExistence(timeout: 5))
 
         let generateButton = app.buttons["ai.generate"]
@@ -36,14 +36,14 @@ final class AtriaWallAIUITests: XCTestCase {
         XCTAssertTrue(applyButton.waitForExistence(timeout: 10))
         applyButton.tap()
 
-        app.buttons["tab.guide"].tap()
+        app.buttons["Guide"].tap()
         XCTAssertTrue(app.staticTexts["Hanging Guide"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["Nail Positions"].waitForExistence(timeout: 5))
 
-        app.buttons["tab.ar"].tap()
+        app.buttons["AR"].tap()
         XCTAssertTrue(app.staticTexts["AR Wall Preview"].waitForExistence(timeout: 5))
 
-        app.buttons["tab.pro"].tap()
+        app.buttons["Pro"].tap()
         XCTAssertTrue(app.staticTexts["AtriaWall Pro"].waitForExistence(timeout: 5))
 
         let yearlyPlan = app.buttons["plan.yearly"]
