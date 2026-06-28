@@ -5,7 +5,7 @@ on:
 
 jobs:
   upload:
-    runs-on: macos-26
+    runs-on: macos-26-intel
     env:
       ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -68,12 +68,12 @@ jobs:
 
       - name: Run simulator tests before upload
         run: |
-            xcodebuild \
-              -project AtriaWallAI.xcodeproj \
-              -scheme AtriaWallAI \
-              -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
-              test \
-              CODE_SIGNING_ALLOWED=NO
+          xcodebuild \
+            -project AtriaWallAI.xcodeproj \
+            -scheme AtriaWallAI \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            test \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Archive release build
         run: |
