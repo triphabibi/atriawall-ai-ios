@@ -47,6 +47,12 @@ jobs:
             printf "%s\n" "$ASC_PRIVATE_KEY" > "$key_path"
           fi
 
+          mkdir -p private_keys "$HOME/private_keys" "$HOME/.private_keys" "$HOME/.appstoreconnect/private_keys"
+          install -m 600 "$key_path" "private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          install -m 600 "$key_path" "$HOME/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          install -m 600 "$key_path" "$HOME/.private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          install -m 600 "$key_path" "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
           echo "ASC_KEY_PATH=$key_path" >> "$GITHUB_ENV"
 
       - name: Write build secrets config
