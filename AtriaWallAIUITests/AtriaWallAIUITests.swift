@@ -15,15 +15,15 @@ final class AtriaWallAIUITests: XCTestCase {
         XCTAssertTrue(addFrameButton.waitForExistence(timeout: 5))
         addFrameButton.tap()
 
-        XCTAssertTrue(app.textFields["frame.title"].waitForExistence(timeout: 5))
+        let frameTitle = app.textFields["frame.title"]
+        reveal(frameTitle, in: app)
+        XCTAssertTrue(frameTitle.exists)
 
         let copyButton = app.buttons["frame.copy"]
-        XCTAssertTrue(copyButton.waitForExistence(timeout: 5))
-        copyButton.tap()
+        revealAndTap(copyButton, in: app)
 
         let lockButton = app.buttons["frame.lock"]
-        XCTAssertTrue(lockButton.waitForExistence(timeout: 5))
-        lockButton.tap()
+        revealAndTap(lockButton, in: app)
 
         app.buttons["AI"].tap()
         XCTAssertTrue(app.staticTexts["AI Design Atelier"].waitForExistence(timeout: 5))
@@ -55,5 +55,25 @@ final class AtriaWallAIUITests: XCTestCase {
         continueButton.tap()
 
         XCTAssertTrue(app.staticTexts["Add your RevenueCat public SDK key in local config before testing purchases."].waitForExistence(timeout: 5))
+    }
+
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication, timeout: TimeInterval = 8) {
+        if element.waitForExistence(timeout: timeout), element.isHittable {
+            return
+        }
+
+        for _ in 0..<4 {
+            app.swipeUp()
+            if element.waitForExistence(timeout: 2), element.isHittable {
+                return
+            }
+        }
+    }
+
+    private func revealAndTap(_ element: XCUIElement, in app: XCUIApplication) {
+        reveal(element, in: app)
+        XCTAssertTrue(element.exists)
+        XCTAssertTrue(element.isHittable)
+        element.tap()
     }
 }
