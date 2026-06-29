@@ -14,7 +14,6 @@ jobs:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
       BUNDLE_ID: ${{ vars.PRODUCT_BUNDLE_IDENTIFIER || 'com.triphabibi.atriawallai' }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      REVENUECAT_API_KEY: ${{ secrets.REVENUECAT_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +58,6 @@ jobs:
         run: |
           cat > Config/Secrets.xcconfig <<EOF
           GEMINI_API_KEY = $GEMINI_API_KEY
-          REVENUECAT_API_KEY = $REVENUECAT_API_KEY
           PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID
           EOF
 
