@@ -1,4 +1,5 @@
 stages:
+  - preflight
   - test
   - deploy
 
@@ -13,6 +14,39 @@ variables:
   XCODE_SCHEME: AtriaWallAI
   PRODUCT_BUNDLE_IDENTIFIER: com.triphabibi.atriawallai
   APPLE_TEAM_ID: QAT93YWVSF
+  ENABLE_GITLAB_MACOS_RUNNER: "false"
+
+ci_preflight:
+  stage: preflight
+  image: alpine:3.20
+  interruptible: true
+  script:
+    - set -eu
+    - echo "Checking repository files and CI variable presence."
+    - test -f "$XCODE_PROJECT/project.pbxproj"
+    - test -f "AppStore/ExportOptions-TestFlight.plist"
+    - test -f "Config/AppConfig.xcconfig"
+    - |
+      check_var() {
+        name="$1"
+        value="$(eval "printf '%s' \"\${$name:-}\"")"
+        if [ -n "$value" ]; then
+          echo "$name is configured"
+        else
+          echo "$name is not configured"
+        fi
+      }
+
+      check_var APP_STORE_CONNECT_KEY_ID
+      check_var APP_STORE_CONNECT_ISSUER_ID
+      check_var APP_STORE_CONNECT_API_KEY_P8_BASE64
+      check_var GEMINI_API_KEY
+      check_var REVENUECAT_API_KEY
+    - |
+      if [ "${ENABLE_GITLAB_MACOS_RUNNER:-false}" != "true" ]; then
+        echo "macOS Xcode jobs are skipped because ENABLE_GITLAB_MACOS_RUNNER is not true."
+        echo "Set ENABLE_GITLAB_MACOS_RUNNER=true only after this project has a macOS runner."
+      fi
 
 .macos_xcode:
   image: macos-26-xcode-26
@@ -33,6 +67,9 @@ variables:
 ios_tests:
   stage: test
   extends: .macos_xcode
+  rules:
+    - if: '$ENABLE_GITLAB_MACOS_RUNNER == "true"'
+    - when: never
   script:
     - xcodebuild -resolvePackageDependencies -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME"
     - |
@@ -47,11 +84,12 @@ testflight_upload:
   stage: deploy
   extends: .macos_xcode
   needs:
-    - ios_tests
+    - job: ios_tests
+      optional: true
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$ENABLE_GITLAB_MACOS_RUNNER == "true" && $CI_COMMIT_BRANCH == "main"'
       when: manual
-    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$ENABLE_GITLAB_MACOS_RUNNER == "true" && $CI_PIPELINE_SOURCE == "web"'
       when: manual
     - when: never
   script:
