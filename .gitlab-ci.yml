@@ -1,0 +1,139 @@
+stages:
+  - test
+  - deploy
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+variables:
+  XCODE_PROJECT: AtriaWallAI.xcodeproj
+  XCODE_SCHEME: AtriaWallAI
+  PRODUCT_BUNDLE_IDENTIFIER: com.triphabibi.atriawallai
+  APPLE_TEAM_ID: QAT93YWVSF
+
+.macos_xcode:
+  image: macos-26-xcode-26
+  tags:
+    - saas-macos-medium-m1
+  interruptible: true
+  before_script:
+    - set -euo pipefail
+    - xcodebuild -version
+    - mkdir -p Config build
+    - |
+      cat > Config/Secrets.xcconfig <<EOF
+      GEMINI_API_KEY = ${GEMINI_API_KEY:-}
+      REVENUECAT_API_KEY = ${REVENUECAT_API_KEY:-}
+      PRODUCT_BUNDLE_IDENTIFIER = ${PRODUCT_BUNDLE_IDENTIFIER}
+      EOF
+
+ios_tests:
+  stage: test
+  extends: .macos_xcode
+  script:
+    - xcodebuild -resolvePackageDependencies -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME"
+    - |
+      xcodebuild \
+        -project "$XCODE_PROJECT" \
+        -scheme "$XCODE_SCHEME" \
+        -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+        test \
+        CODE_SIGNING_ALLOWED=NO
+
+testflight_upload:
+  stage: deploy
+  extends: .macos_xcode
+  needs:
+    - ios_tests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: manual
+    - when: never
+  script:
+    - |
+      missing=0
+      for name in APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APPLE_TEAM_ID PRODUCT_BUNDLE_IDENTIFIER; do
+        if [ -z "${!name:-}" ]; then
+          echo "ERROR: $name is required"
+          missing=1
+        fi
+      done
+
+      if [ -z "${APP_STORE_CONNECT_API_KEY_P8:-}" ] && [ -z "${APP_STORE_CONNECT_API_KEY_P8_BASE64:-}" ]; then
+        echo "ERROR: APP_STORE_CONNECT_API_KEY_P8 or APP_STORE_CONNECT_API_KEY_P8_BASE64 is required"
+        missing=1
+      fi
+
+      exit "$missing"
+    - |
+      mkdir -p private_keys "$HOME/private_keys" "$HOME/.private_keys" "$HOME/.appstoreconnect/private_keys"
+      ASC_KEY_PATH="$CI_PROJECT_DIR/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+
+      if [ -n "${APP_STORE_CONNECT_API_KEY_P8_BASE64:-}" ]; then
+        printf "%s" "$APP_STORE_CONNECT_API_KEY_P8_BASE64" | base64 --decode > "$ASC_KEY_PATH"
+      else
+        printf "%s\n" "$APP_STORE_CONNECT_API_KEY_P8" > "$ASC_KEY_PATH"
+      fi
+
+      chmod 600 "$ASC_KEY_PATH"
+      cp "$ASC_KEY_PATH" "$HOME/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+      cp "$ASC_KEY_PATH" "$HOME/.private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+      cp "$ASC_KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+      echo "ASC_KEY_PATH=$ASC_KEY_PATH" >> build/ci.env
+    - |
+      set -a
+      . build/ci.env
+      set +a
+
+      xcodebuild \
+        -project "$XCODE_PROJECT" \
+        -scheme "$XCODE_SCHEME" \
+        -configuration Release \
+        -destination 'generic/platform=iOS' \
+        -archivePath build/AtriaWallAI.xcarchive \
+        clean archive \
+        -allowProvisioningUpdates \
+        -authenticationKeyPath "$ASC_KEY_PATH" \
+        -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID" \
+        -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
+        DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+        PRODUCT_BUNDLE_IDENTIFIER="$PRODUCT_BUNDLE_IDENTIFIER" \
+        CODE_SIGN_STYLE=Automatic \
+        CURRENT_PROJECT_VERSION="$CI_PIPELINE_IID"
+    - |
+      set -a
+      . build/ci.env
+      set +a
+
+      xcodebuild \
+        -exportArchive \
+        -archivePath build/AtriaWallAI.xcarchive \
+        -exportPath build/export \
+        -exportOptionsPlist AppStore/ExportOptions-TestFlight.plist \
+        -allowProvisioningUpdates \
+        -authenticationKeyPath "$ASC_KEY_PATH" \
+        -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID" \
+        -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
+    - |
+      ipa_path="$(find build/export -name '*.ipa' -print -quit)"
+      if [ -z "$ipa_path" ]; then
+        echo "ERROR: No IPA was exported"
+        exit 1
+      fi
+
+      xcrun altool \
+        --upload-app \
+        --file "$ipa_path" \
+        --type ios \
+        --apiKey "$APP_STORE_CONNECT_KEY_ID" \
+        --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+  artifacts:
+    when: always
+    expire_in: 1 day
+    paths:
+      - build/export/*.ipa
