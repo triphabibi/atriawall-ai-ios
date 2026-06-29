@@ -16,7 +16,7 @@ The reference app offers useful basics: folders, custom frames, wall organizatio
 - Templates are curated by visual intent: editorial salon, quiet grid, staircase rise, anchor triptych.
 - The app opens directly into the tool, not a marketing landing page.
 - Subscription plan is intentionally simple: weekly, monthly, yearly.
-- Secrets are not committed. Gemini and RevenueCat are configured locally.
+- Secrets are not committed. Gemini is configured locally or in CI.
 
 ## MVP Features Implemented
 
@@ -30,7 +30,7 @@ The reference app offers useful basics: folders, custom frames, wall organizatio
 - AI layout generator with Gemini REST integration and local fallback
 - Hanging guide with shareable text
 - AR preview screen with ARKit camera surface
-- Custom RevenueCat paywall
+- Native StoreKit paywall
 - Unit tests for hanging math and AI clamping
 - GitHub Actions simulator build/test workflow
 

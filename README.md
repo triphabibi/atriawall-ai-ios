@@ -13,7 +13,7 @@ AtriaWall AI helps DIY homeowners design, preview, and hang gallery walls with m
 - Gemini-powered AI layout plans with local fallback suggestions
 - Exact nail position guide based on frame size and hardware offset
 - ARKit preview surface for live wall alignment
-- Custom RevenueCat-ready paywall with weekly, monthly, yearly plans
+- Native StoreKit paywall with weekly, monthly, yearly plans
 
 ## Project
 
@@ -56,24 +56,17 @@ Then fill:
 ```xcconfig
 GEMINI_API_KEY = your_gemini_key
 GEMINI_MODEL = gemini-3.5-flash
-REVENUECAT_API_KEY = your_revenuecat_public_sdk_key
 PRODUCT_BUNDLE_IDENTIFIER = com.triphabibi.atriawallai
 ```
 
 `Config/Secrets.xcconfig` is ignored by git.
 
-## RevenueCat
+## StoreKit Subscriptions
 
-Use one entitlement:
-
-```text
-pro
-```
-
-Use one offering:
+Create one auto-renewable subscription group in App Store Connect:
 
 ```text
-default
+AtriaWall Pro
 ```
 
 Products:

@@ -23,7 +23,6 @@ Optional runtime secrets:
 
 ```text
 GEMINI_API_KEY
-REVENUECAT_API_KEY
 ```
 
 Optional GitHub variable:
@@ -40,7 +39,7 @@ Confirm in Apple Developer/App Store Connect:
 - App record exists in App Store Connect
 - Apple Team ID is correct
 - App Store Connect API key has access to upload builds
-- RevenueCat products match `AppStore/iap-products.json`
+- App Store Connect StoreKit products match `AppStore/iap-products.json`
 
 ## Run Upload
 

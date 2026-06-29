@@ -15,7 +15,6 @@ APP_STORE_CONNECT_KEY_ID
 APP_STORE_CONNECT_ISSUER_ID
 APP_STORE_CONNECT_API_KEY_P8_BASE64
 GEMINI_API_KEY
-REVENUECAT_API_KEY
 ```
 
 `APPLE_TEAM_ID` and `PRODUCT_BUNDLE_IDENTIFIER` are already set in `.gitlab-ci.yml`:
@@ -68,3 +67,19 @@ tag: saas-macos-medium-m1
 ```
 
 If the job says **No matching runner available**, the GitLab account/project does not have access to that macOS runner. In that case the YAML is still correct, but the project needs an available macOS runner before TestFlight deployment can run.
+
+## StoreKit Product IDs
+
+Create one auto-renewable subscription group in App Store Connect:
+
+```text
+AtriaWall Pro
+```
+
+Create exactly these three products:
+
+```text
+com.triphabibi.atriawallai.pro.weekly
+com.triphabibi.atriawallai.pro.monthly
+com.triphabibi.atriawallai.pro.yearly
+```

@@ -22,7 +22,6 @@
 		B10000000000000000000013 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000013 /* PaywallView.swift */; };
 		B10000000000000000000014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000014 /* Assets.xcassets */; };
 		B10000000000000000000015 /* HangingMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000015 /* HangingMathTests.swift */; };
-		B10000000000000000000016 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = F10000000000000000000002 /* RevenueCat */; };
 		B10000000000000000000017 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000021 /* SubscriptionManager.swift */; };
 		B10000000000000000000018 /* AtriaWallAIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000022 /* AtriaWallAIUITests.swift */; };
 /* End PBXBuildFile section */
@@ -75,7 +74,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B10000000000000000000016 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +180,6 @@
 			);
 			name = AtriaWallAI;
 			packageProductDependencies = (
-				F10000000000000000000002 /* RevenueCat */,
 			);
 			productName = AtriaWallAI;
 			productReference = C10000000000000000000019 /* AtriaWallAI.app */;
@@ -257,7 +254,6 @@
 			);
 			mainGroup = G10000000000000000000001;
 			packageReferences = (
-				F10000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			productRefGroup = G10000000000000000000005 /* Products */;
 			projectDirPath = "";
@@ -654,24 +650,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		F10000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		F10000000000000000000002 /* RevenueCat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F10000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
-			productName = RevenueCat;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A00000000000000000000001 /* Project object */;
 }

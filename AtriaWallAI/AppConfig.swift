@@ -15,10 +15,6 @@ enum AppConfig {
         return environment["ATRIAWALL_USE_LOCAL_AI"] == "1"
     }
 
-    static var revenueCatAPIKey: String {
-        sanitizedInfoValue("RevenueCatAPIKey")
-    }
-
     private static func sanitizedInfoValue(_ key: String) -> String {
         guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
             return ""

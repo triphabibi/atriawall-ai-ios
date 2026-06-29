@@ -55,7 +55,7 @@ final class AtriaWallAIUITests: XCTestCase {
         XCTAssertTrue(continueButton.waitForExistence(timeout: 5))
         continueButton.tap()
 
-        XCTAssertTrue(app.staticTexts["Add your RevenueCat public SDK key in local config before testing purchases."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Create the App Store Connect subscription products before testing purchases."].waitForExistence(timeout: 5))
     }
 
     private func reveal(_ element: XCUIElement, in app: XCUIApplication, timeout: TimeInterval = 8) {

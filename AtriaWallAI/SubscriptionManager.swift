@@ -1,11 +1,11 @@
 import Foundation
 import Combine
-import RevenueCat
+import StoreKit
 
 enum PurchaseState: Equatable {
     case idle
     case loading
-    case notConfigured
+    case unavailable
     case failed(String)
     case purchased
     case restored
@@ -18,21 +18,21 @@ struct PaywallPlan: Identifiable, Equatable {
     let price: String
     let badge: String?
     let detail: String
-    let package: RevenueCat.Package?
+    let product: Product?
 
     static func == (lhs: PaywallPlan, rhs: PaywallPlan) -> Bool {
         lhs.id == rhs.id
     }
 
     static let fallback: [PaywallPlan] = [
-        PaywallPlan(id: "com.triphabibi.atriawallai.pro.weekly", title: "Weekly", cadence: "Flexible access", price: "$4.99", badge: nil, detail: "Unlimited AI plans and exports for one week.", package: nil),
-        PaywallPlan(id: "com.triphabibi.atriawallai.pro.monthly", title: "Monthly", cadence: "Most flexible", price: "$12.99", badge: nil, detail: "Plan, revise, and hang walls room by room.", package: nil),
-        PaywallPlan(id: "com.triphabibi.atriawallai.pro.yearly", title: "Yearly", cadence: "Best value", price: "$49.99", badge: "Save 68%", detail: "Best for full-home styling and seasonal refreshes.", package: nil)
+        PaywallPlan(id: "com.triphabibi.atriawallai.pro.weekly", title: "Weekly", cadence: "Flexible access", price: "$4.99", badge: nil, detail: "Unlimited AI plans and exports for one week.", product: nil),
+        PaywallPlan(id: "com.triphabibi.atriawallai.pro.monthly", title: "Monthly", cadence: "Most flexible", price: "$12.99", badge: nil, detail: "Plan, revise, and hang walls room by room.", product: nil),
+        PaywallPlan(id: "com.triphabibi.atriawallai.pro.yearly", title: "Yearly", cadence: "Best value", price: "$49.99", badge: "Save 68%", detail: "Best for full-home styling and seasonal refreshes.", product: nil)
     ]
 
-    init(package: RevenueCat.Package) {
-        let identifier = package.identifier.lowercased()
-        let productID = package.storeProduct.productIdentifier
+    init(product: Product) {
+        let productID = product.id
+        let identifier = productID.lowercased()
 
         if identifier.contains("annual") || identifier.contains("year") || productID.contains("year") {
             id = productID
@@ -54,18 +54,18 @@ struct PaywallPlan: Identifiable, Equatable {
             detail = "Unlimited AI plans and exports for one week."
         }
 
-        price = package.storeProduct.localizedPriceString
-        self.package = package
+        price = product.displayPrice
+        self.product = product
     }
 
-    private init(id: String, title: String, cadence: String, price: String, badge: String?, detail: String, package: RevenueCat.Package?) {
+    private init(id: String, title: String, cadence: String, price: String, badge: String?, detail: String, product: Product?) {
         self.id = id
         self.title = title
         self.cadence = cadence
         self.price = price
         self.badge = badge
         self.detail = detail
-        self.package = package
+        self.product = product
     }
 }
 
@@ -75,51 +75,53 @@ final class SubscriptionManager: ObservableObject {
     @Published var purchaseState: PurchaseState = .idle
     @Published var plans: [PaywallPlan] = PaywallPlan.fallback
 
-    private let entitlementID = "pro"
+    private let productIDs = Set(PaywallPlan.fallback.map(\.id))
+    private var transactionListener: Task<Void, Never>?
     private var configured = false
 
     var isConfigured: Bool {
         configured
     }
 
+    deinit {
+        transactionListener?.cancel()
+    }
+
     func configure() async {
-        guard !AppConfig.revenueCatAPIKey.isEmpty else {
-            purchaseState = .notConfigured
-            plans = PaywallPlan.fallback
-            return
-        }
-
         guard !configured else { return }
-
-        Purchases.logLevel = .warn
-        Purchases.configure(withAPIKey: AppConfig.revenueCatAPIKey)
         configured = true
 
+        transactionListener = listenForTransactions()
         await refreshCustomerStatus()
-        await loadOfferings()
+        await loadProducts()
     }
 
     func refreshCustomerStatus() async {
-        guard configured else { return }
+        var hasActiveSubscription = false
 
-        do {
-            let customerInfo = try await Purchases.shared.customerInfo()
-            isPro = customerInfo.entitlements[entitlementID]?.isActive == true
-        } catch {
-            purchaseState = .failed(error.localizedDescription)
+        for await entitlement in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = entitlement else { continue }
+
+            if productIDs.contains(transaction.productID),
+               transaction.revocationDate == nil,
+               transaction.expirationDate.map({ $0 > Date() }) ?? true {
+                hasActiveSubscription = true
+                break
+            }
         }
+
+        isPro = hasActiveSubscription
     }
 
-    func loadOfferings() async {
+    func loadProducts() async {
         guard configured else {
             plans = PaywallPlan.fallback
             return
         }
 
         do {
-            let offerings = try await Purchases.shared.offerings()
-            let packages = offerings.current?.availablePackages ?? []
-            let mapped = packages.map(PaywallPlan.init(package:)).sorted { lhs, rhs in
+            let products = try await Product.products(for: Array(productIDs))
+            let mapped = products.map(PaywallPlan.init(product:)).sorted { lhs, rhs in
                 planRank(lhs.title) < planRank(rhs.title)
             }
             plans = mapped.isEmpty ? PaywallPlan.fallback : mapped
@@ -130,16 +132,34 @@ final class SubscriptionManager: ObservableObject {
     }
 
     func purchase(_ plan: PaywallPlan) async {
-        guard configured, let package = plan.package else {
-            purchaseState = .notConfigured
+        guard configured else {
+            purchaseState = .unavailable
+            return
+        }
+
+        guard let product = plan.product else {
+            purchaseState = .unavailable
             return
         }
 
         purchaseState = .loading
         do {
-            let result = try await Purchases.shared.purchase(package: package)
-            isPro = result.customerInfo.entitlements[entitlementID]?.isActive == true
-            purchaseState = isPro ? .purchased : .idle
+            let result = try await product.purchase()
+
+            switch result {
+            case .success(.verified(let transaction)):
+                await transaction.finish()
+                await refreshCustomerStatus()
+                purchaseState = isPro ? .purchased : .idle
+            case .success(.unverified(_, let error)):
+                purchaseState = .failed(error.localizedDescription)
+            case .pending:
+                purchaseState = .failed("Purchase is pending approval.")
+            case .userCancelled:
+                purchaseState = .idle
+            @unknown default:
+                purchaseState = .failed("Purchase could not be completed.")
+            }
         } catch {
             purchaseState = .failed(error.localizedDescription)
         }
@@ -147,14 +167,14 @@ final class SubscriptionManager: ObservableObject {
 
     func restore() async {
         guard configured else {
-            purchaseState = .notConfigured
+            purchaseState = .unavailable
             return
         }
 
         purchaseState = .loading
         do {
-            let customerInfo = try await Purchases.shared.restorePurchases()
-            isPro = customerInfo.entitlements[entitlementID]?.isActive == true
+            try await AppStore.sync()
+            await refreshCustomerStatus()
             purchaseState = .restored
         } catch {
             purchaseState = .failed(error.localizedDescription)
@@ -167,6 +187,20 @@ final class SubscriptionManager: ObservableObject {
         case "Monthly": return 1
         case "Yearly": return 2
         default: return 3
+        }
+    }
+
+    private func listenForTransactions() -> Task<Void, Never> {
+        Task { [weak self] in
+            for await update in Transaction.updates {
+                guard let self else { return }
+                guard case .verified(let transaction) = update else { continue }
+                await transaction.finish()
+
+                if productIDs.contains(transaction.productID) {
+                    await refreshCustomerStatus()
+                }
+            }
         }
     }
 }

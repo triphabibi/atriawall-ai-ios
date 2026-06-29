@@ -2,7 +2,7 @@
 
 ## API Keys
 
-Do not commit Gemini or RevenueCat keys. Use:
+Do not commit Gemini keys or Apple private keys. Use:
 
 ```text
 Config/Secrets.xcconfig
@@ -26,4 +26,4 @@ Before submission, confirm:
 - Privacy policy covers AI processing, photo import, diagnostics, and purchases.
 - Camera usage string matches AR preview behavior.
 - Photo library usage string matches imported artwork/family photo behavior.
-- RevenueCat products and App Store Connect products match exactly.
+- StoreKit product identifiers in the app and App Store Connect match exactly.

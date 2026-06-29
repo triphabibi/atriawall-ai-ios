@@ -59,7 +59,7 @@ struct PaywallView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color.atriaSage.opacity(0.28), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 } else if !subscriptions.isConfigured {
-                    Label("RevenueCat key is not configured yet", systemImage: "exclamationmark.triangle")
+                    Label("StoreKit products are loading", systemImage: "clock")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.atriaInk)
                         .padding(10)
@@ -129,8 +129,8 @@ struct PaywallView: View {
             EmptyView()
         case .loading:
             ProgressView()
-        case .notConfigured:
-            Text("Add your RevenueCat public SDK key in local config before testing purchases.")
+        case .unavailable:
+            Text("Create the App Store Connect subscription products before testing purchases.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

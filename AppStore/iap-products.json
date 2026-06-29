@@ -1,9 +1,8 @@
 {
   "appName": "AtriaWall AI",
   "currency": "USD",
-  "revenueCat": {
-    "entitlementId": "pro",
-    "offeringId": "default"
+  "storeKit": {
+    "subscriptionGroupReferenceName": "AtriaWall Pro"
   },
   "products": [
     {

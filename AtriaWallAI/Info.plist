@@ -24,8 +24,6 @@
 	<string>$(GEMINI_API_KEY)</string>
 	<key>GeminiModel</key>
 	<string>$(GEMINI_MODEL)</string>
-	<key>RevenueCatAPIKey</key>
-	<string>$(REVENUECAT_API_KEY)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
