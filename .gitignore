@@ -1,18 +1,40 @@
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode user state and local metadata
 *.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
 xcuserdata/
+
+# Xcode build outputs and reports
 DerivedData/
 build/
+Build/
+*.hmap
+*.ipa
+*.app
+*.dSYM/
+*.xcarchive/
+*.xcresult/
+
+# Swift Package Manager
+.build/
 .swiftpm/
 Package.resolved
 
 # Local secrets. Keep real API keys out of git.
 Config/Secrets.xcconfig
 *.env
+*.p8
+*.key
+private_keys/
 
-# Generated archives and signing material.
-*.ipa
-*.xcarchive
+# Signing material
 *.mobileprovision
+*.provisionprofile
 *.p12
 *.cer
