@@ -20,6 +20,6 @@ jobs:
           xcodebuild \
             -project AtriaWallAI.xcodeproj \
             -scheme AtriaWallAI \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
             test \
             CODE_SIGNING_ALLOWED=NO
