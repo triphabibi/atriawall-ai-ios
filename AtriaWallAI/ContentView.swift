@@ -12,7 +12,7 @@ enum AppTab: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .studio: return "Studio"
-        case .ai: return "AI"
+        case .ai: return "Design"
         case .guide: return "Guide"
         case .ar: return "AR"
         case .pro: return "Pro"
@@ -34,6 +34,7 @@ struct RootShellView: View {
     @EnvironmentObject private var library: ProjectLibrary
     @EnvironmentObject private var subscriptions: SubscriptionManager
     @State private var tab: AppTab = .studio
+    @State private var showCapture = false
 
     var body: some View {
         ZStack {
@@ -46,14 +47,30 @@ struct RootShellView: View {
                     if let index = selectedProjectIndex {
                         content(for: $library.projects[index])
                     } else {
-                        EmptyStateView()
+                        EmptyStatePanel(
+                            systemImage: "rectangle.3.group.bubble.left",
+                            title: "Create a gallery wall project",
+                            message: "Scan your real wall, then add frames, templates, AI plans, and hanging marks.",
+                            actionTitle: "New Project"
+                        ) {
+                            library.createProject()
+                            tab = .studio
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 FloatingTabBar(selection: $tab)
                     .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 10)
+            }
+        }
+        .sheet(isPresented: $showCapture) {
+            if let index = selectedProjectIndex {
+                WallCaptureView(unit: library.projects[index].unit) { wall in
+                    library.projects[index].addWall(wall)
+                    tab = .studio
+                }
             }
         }
     }
@@ -66,7 +83,7 @@ struct RootShellView: View {
     }
 
     private var topBar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             Menu {
                 ForEach(library.projects) { project in
                     Button {
@@ -110,18 +127,33 @@ struct RootShellView: View {
                 .foregroundStyle(Color.atriaInk)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             .buttonStyle(.plain)
 
             Spacer()
+
+            Button {
+                showCapture = true
+            } label: {
+                Image(systemName: "camera.viewfinder")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(width: 42, height: 42)
+                    .background(LinearGradient(colors: [Color.atriaCopper, Color.atriaCopperDeep], startPoint: .topLeading, endPoint: .bottomTrailing),
+                                in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .shadow(color: Color.atriaCopper.opacity(0.3), radius: 10, x: 0, y: 6)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Scan wall")
+            .accessibilityIdentifier("shell.scanWall")
 
             if subscriptions.isPro {
                 Label("Pro", systemImage: "crown.fill")
                     .font(.caption.weight(.bold))
                     .foregroundStyle(Color.atriaInk)
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
                     .background(Color.atriaCopper.opacity(0.18), in: Capsule())
             } else {
                 Button {
@@ -130,15 +162,14 @@ struct RootShellView: View {
                     Image(systemName: "crown")
                         .font(.headline)
                         .foregroundStyle(Color.atriaInk)
-                        .frame(width: 40, height: 40)
-                        .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .frame(width: 42, height: 42)
+                        .background(.white.opacity(0.72), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .buttonStyle(.plain)
-                .accessibilityIdentifier("tab.\(tab.rawValue)")
             }
         }
         .padding(.horizontal, 16)
-        .padding(.top, 14)
+        .padding(.top, 12)
         .padding(.bottom, 10)
     }
 
@@ -146,9 +177,9 @@ struct RootShellView: View {
     private func content(for project: Binding<WallProject>) -> some View {
         switch tab {
         case .studio:
-            StudioWorkspaceView(project: project)
+            StudioWorkspaceView(project: project, onScanWall: { showCapture = true })
         case .ai:
-            AIAssistantView(project: project)
+            AIAssistantView(project: project, onScanWall: { showCapture = true })
         case .guide:
             HangingGuideView(project: project)
         case .ar:
@@ -174,37 +205,21 @@ private struct FloatingTabBar: View {
                         Text(tab.title)
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                     }
-                    .foregroundStyle(selection == tab ? Color.white : Color.atriaInk.opacity(0.72))
+                    .foregroundStyle(selection == tab ? Color.white : Color.atriaInk.opacity(0.7))
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
-                    .background(selection == tab ? Color.atriaInk : Color.clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .background(selection == tab ? Color.atriaInk : Color.clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("tab.\(tab.rawValue)")
             }
         }
         .padding(6)
-        .background(.white.opacity(0.78), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .stroke(.white.opacity(0.9), lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.10), radius: 18, x: 0, y: 10)
-    }
-}
-
-private struct EmptyStateView: View {
-    var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "rectangle.3.group.bubble.left")
-                .font(.system(size: 44, weight: .light))
-                .foregroundStyle(Color.atriaCopper)
-            Text("Create a gallery wall project")
-                .font(.title3.bold())
-            Text("Start with wall size, then add frames, templates, AI plans, and hanging marks.")
-                .multilineTextAlignment(.center)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-        }
-        .padding()
+        .shadow(color: .black.opacity(0.1), radius: 18, x: 0, y: 10)
     }
 }

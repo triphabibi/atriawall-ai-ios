@@ -10,7 +10,7 @@ final class AtriaWallAIUITests: XCTestCase {
         app.launchEnvironment["ATRIAWALL_USE_LOCAL_AI"] = "1"
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["AtriaWall Studio"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Templates"].waitForExistence(timeout: 10))
 
         let addFrameButton = app.buttons["studio.addFrame"]
         XCTAssertTrue(addFrameButton.waitForExistence(timeout: 5))
@@ -26,16 +26,15 @@ final class AtriaWallAIUITests: XCTestCase {
         let lockButton = app.buttons["frame.lock"]
         revealAndTap(lockButton, in: app)
 
-        app.buttons["AI"].tap()
+        app.buttons["Design"].tap()
         XCTAssertTrue(app.staticTexts["AI Design Atelier"].waitForExistence(timeout: 5))
 
         let generateButton = app.buttons["ai.generate"]
-        XCTAssertTrue(generateButton.waitForExistence(timeout: 5))
-        generateButton.tap()
+        revealAndTap(generateButton, in: app)
 
         let applyButton = app.buttons["ai.apply"]
         XCTAssertTrue(applyButton.waitForExistence(timeout: 10))
-        applyButton.tap()
+        revealAndTap(applyButton, in: app)
 
         app.buttons["Guide"].tap()
         XCTAssertTrue(app.staticTexts["Hanging Guide"].waitForExistence(timeout: 5))

@@ -24,6 +24,9 @@
 		B10000000000000000000015 /* HangingMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000015 /* HangingMathTests.swift */; };
 		B10000000000000000000017 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000021 /* SubscriptionManager.swift */; };
 		B10000000000000000000018 /* AtriaWallAIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000022 /* AtriaWallAIUITests.swift */; };
+		B10000000000000000000024 /* WallDesignService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000024 /* WallDesignService.swift */; };
+		B10000000000000000000025 /* WallCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000025 /* WallCaptureView.swift */; };
+		B10000000000000000000026 /* WallMeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C10000000000000000000026 /* WallMeasureView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +70,9 @@
 		C10000000000000000000021 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		C10000000000000000000022 /* AtriaWallAIUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtriaWallAIUITests.swift; sourceTree = "<group>"; };
 		C10000000000000000000023 /* AtriaWallAIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AtriaWallAIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C10000000000000000000024 /* WallDesignService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallDesignService.swift; sourceTree = "<group>"; };
+		C10000000000000000000025 /* WallCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallCaptureView.swift; sourceTree = "<group>"; };
+		C10000000000000000000026 /* WallMeasureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallMeasureView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +128,9 @@
 				C10000000000000000000011 /* HangingGuideView.swift */,
 				C10000000000000000000012 /* ARPreviewView.swift */,
 				C10000000000000000000013 /* PaywallView.swift */,
+				C10000000000000000000024 /* WallDesignService.swift */,
+				C10000000000000000000025 /* WallCaptureView.swift */,
+				C10000000000000000000026 /* WallMeasureView.swift */,
 				C10000000000000000000014 /* Assets.xcassets */,
 				C10000000000000000000016 /* Info.plist */,
 			);
@@ -310,6 +319,9 @@
 				B10000000000000000000011 /* HangingGuideView.swift in Sources */,
 				B10000000000000000000012 /* ARPreviewView.swift in Sources */,
 				B10000000000000000000013 /* PaywallView.swift in Sources */,
+				B10000000000000000000024 /* WallDesignService.swift in Sources */,
+				B10000000000000000000025 /* WallCaptureView.swift in Sources */,
+				B10000000000000000000026 /* WallMeasureView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,8 +6,11 @@ Premium iOS gallery wall planner built with SwiftUI.
 
 AtriaWall AI helps DIY homeowners design, preview, and hang gallery walls with more precision than a simple visual mockup app.
 
+- Scan your real wall: take a live photo or attach several wall photos, tag corner walls, and measure real width/height with AR (with a manual fallback)
+- Design on the real photo: a Gemini image model renders a photorealistic gallery wall directly onto your wall picture, respecting corners and wall size
+- Multiple walls per project with a wall selector and per-wall dimensions
 - Editable wall projects with real wall dimensions
-- Drag-and-drop frame canvas with scale-preserving layout
+- Drag-and-drop frame canvas that uses your captured wall photo as the backdrop
 - Premium layout templates for salon walls, grids, staircases, and triptychs
 - Photo import for family photos, artwork, and prints
 - Gemini-powered AI layout plans with local fallback suggestions
@@ -55,9 +58,15 @@ Then fill:
 
 ```xcconfig
 GEMINI_API_KEY = your_gemini_key
-GEMINI_MODEL = gemini-3.5-flash
+GEMINI_MODEL = gemini-2.5-flash
+GEMINI_IMAGE_MODEL = gemini-2.5-flash-image
 PRODUCT_BUNDLE_IDENTIFIER = com.triphabibi.atriawallai
 ```
+
+`GEMINI_MODEL` powers the editable layout plans. `GEMINI_IMAGE_MODEL` powers the
+photorealistic "Design on My Wall" render. If no key is configured, layout plans
+fall back to a curated local plan and the render step shows a clear prompt to add
+a key. The image model defaults to `gemini-2.5-flash-image` if the key is omitted.
 
 `Config/Secrets.xcconfig` is ignored by git.
 

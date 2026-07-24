@@ -3,13 +3,14 @@ import SwiftUI
 
 struct StudioWorkspaceView: View {
     @Binding var project: WallProject
+    var onScanWall: () -> Void
     @State private var selectedFrameID: FrameItem.ID?
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 14) {
-                heroImage
+            VStack(spacing: Metrics.gap) {
                 projectHeader
+                wallStrip
                 templateStrip
 
                 WallCanvasView(project: $project, selectedFrameID: $selectedFrameID)
@@ -22,38 +23,7 @@ struct StudioWorkspaceView: View {
         }
     }
 
-    private var heroImage: some View {
-        ZStack(alignment: .bottomLeading) {
-            Image("HomeHero")
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity)
-                .frame(height: 220)
-                .clipped()
-
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.58)],
-                startPoint: .center,
-                endPoint: .bottom
-            )
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("AtriaWall Studio")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                Text(project.style)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(1)
-            }
-            .foregroundStyle(.white)
-            .padding(16)
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(.white.opacity(0.62), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.14), radius: 18, x: 0, y: 12)
-    }
+    // MARK: Header
 
     private var projectHeader: some View {
         GlassPanel {
@@ -78,8 +48,8 @@ struct StudioWorkspaceView: View {
                         Image(systemName: "plus")
                             .font(.headline.weight(.bold))
                             .foregroundStyle(Color.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.atriaInk, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .frame(width: 42, height: 42)
+                            .background(Color.atriaInk, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Add frame")
@@ -94,11 +64,11 @@ struct StudioWorkspaceView: View {
 
                 VStack(spacing: 10) {
                     HStack {
-                        Stepper(value: $project.wallWidth, in: 48...360, step: 1) {
+                        Stepper(value: $project.wallWidth, in: 24...480, step: 1) {
                             Text("Width \(project.wallWidth, specifier: "%.0f") \(project.unit.symbol)")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        Stepper(value: $project.wallHeight, in: 36...180, step: 1) {
+                        Stepper(value: $project.wallHeight, in: 24...240, step: 1) {
                             Text("Height \(project.wallHeight, specifier: "%.0f") \(project.unit.symbol)")
                                 .font(.subheadline.weight(.semibold))
                         }
@@ -106,7 +76,7 @@ struct StudioWorkspaceView: View {
 
                     Picker("Unit", selection: $project.unit) {
                         ForEach(WallUnit.allCases) { unit in
-                            Text(unit.rawValue.capitalized).tag(unit)
+                            Text(unit.name).tag(unit)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -119,6 +89,54 @@ struct StudioWorkspaceView: View {
         .onChange(of: project.wallHeight) { _ in project.touch() }
         .onChange(of: project.unit) { _ in project.touch() }
     }
+
+    // MARK: Walls
+
+    private var wallStrip: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Your Walls")
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                Spacer()
+                Text(project.wallCountLabel)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 2)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    Button(action: onScanWall) {
+                        VStack(spacing: 8) {
+                            Image(systemName: "camera.viewfinder")
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundStyle(Color.atriaCopper)
+                            Text("Scan Wall")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Color.atriaInk)
+                        }
+                        .frame(width: 96, height: 108)
+                        .background(.white.opacity(0.7), in: RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous)
+                                .strokeBorder(Color.atriaCopper.opacity(0.4), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("studio.scanWall")
+
+                    ForEach(project.walls) { wall in
+                        WallThumb(wall: wall, unit: project.unit, isActive: wall.id == project.activeWallID) {
+                            project.selectWall(wall.id)
+                        }
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    // MARK: Templates
 
     private var templateStrip: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -152,13 +170,65 @@ struct StudioWorkspaceView: View {
     }
 }
 
+private struct WallThumb: View {
+    var wall: CapturedWall
+    var unit: WallUnit
+    var isActive: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 0) {
+                ZStack(alignment: .topTrailing) {
+                    if let image = PhotoStore.image(named: wall.renderFilename ?? wall.photoFilename) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 132, height: 82)
+                            .clipped()
+                    } else {
+                        Rectangle()
+                            .fill(Color.atriaPaper)
+                            .frame(width: 132, height: 82)
+                            .overlay(Image(systemName: "photo").foregroundStyle(.secondary))
+                    }
+
+                    if wall.isCornerWall {
+                        AtriaTag(text: "Corner", systemImage: "arrow.turn.down.right")
+                            .padding(6)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(wall.label)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.atriaInk)
+                        .lineLimit(1)
+                    Text(wall.dimensionLabel(in: unit))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(8)
+                .frame(width: 132, alignment: .leading)
+            }
+            .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous)
+                    .stroke(isActive ? Color.atriaCopper : .clear, lineWidth: 2.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 private struct TemplateTile: View {
     var template: WallTemplate
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .fill(Color.atriaPaper)
 
                 ForEach(template.frames.prefix(8)) { frame in
@@ -188,7 +258,7 @@ private struct TemplateTile: View {
         }
         .padding(10)
         .frame(width: 126, alignment: .leading)
-        .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .background(.white.opacity(0.74), in: RoundedRectangle(cornerRadius: Metrics.radiusSmall, style: .continuous))
     }
 }
 
@@ -200,26 +270,14 @@ struct WallCanvasView: View {
     var body: some View {
         GeometryReader { geometry in
             let metrics = canvasMetrics(for: geometry.size)
+            let wallImage = PhotoStore.image(named: project.activeWall?.photoFilename)
 
             ZStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: Metrics.radiusMedium, style: .continuous)
                     .fill(.white.opacity(0.55))
 
                 ZStack(alignment: .topLeading) {
-                    WallGrid(unit: project.unit)
-                        .frame(width: metrics.wallSize.width, height: metrics.wallSize.height)
-                        .background(
-                            LinearGradient(
-                                colors: [Color(hex: "F8F4ED"), Color(hex: "ECE6DB")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .stroke(Color.atriaInk.opacity(0.18), lineWidth: 1)
-                        )
+                    wallBackground(image: wallImage, size: metrics.wallSize)
 
                     ForEach($project.frames) { $frame in
                         FrameCanvasCard(frame: frame, scale: metrics.scale, selected: selectedFrameID == frame.id)
@@ -239,11 +297,43 @@ struct WallCanvasView: View {
                 .overlay(alignment: .topLeading) {
                     Text("\(project.wallWidth, specifier: "%.0f") \(project.unit.symbol)")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(wallImage == nil ? .secondary : .white)
+                        .padding(6)
+                        .background(wallImage == nil ? .clear : .black.opacity(0.3), in: Capsule())
                         .padding(6)
                 }
                 .padding(14)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func wallBackground(image: UIImage?, size: CGSize) -> some View {
+        if let image {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: size.width, height: size.height)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color.atriaInk.opacity(0.2), lineWidth: 1)
+                )
+        } else {
+            WallGrid(unit: project.unit)
+                .frame(width: size.width, height: size.height)
+                .background(
+                    LinearGradient(
+                        colors: [Color(hex: "F8F4ED"), Color(hex: "ECE6DB")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(Color.atriaInk.opacity(0.18), lineWidth: 1)
+                )
         }
     }
 
@@ -327,9 +417,9 @@ private struct FrameCanvasCard: View {
             RoundedRectangle(cornerRadius: 3, style: .continuous)
                 .fill(Color(hex: frame.frameColorHex))
 
-                RoundedRectangle(cornerRadius: 2, style: .continuous)
-                    .fill(Color.atriaPaper)
-                    .padding(max(2, mat * 0.55))
+            RoundedRectangle(cornerRadius: 2, style: .continuous)
+                .fill(Color.atriaPaper)
+                .padding(max(2, mat * 0.55))
 
             if let image = PhotoStore.image(named: frame.artImageFilename) {
                 Image(uiImage: image)
@@ -468,11 +558,11 @@ private struct FrameControls: View {
                 .accessibilityIdentifier("frame.title")
 
             HStack {
-                Stepper(value: $frame.width, in: 6...72, step: 1) {
+                Stepper(value: $frame.width, in: 4...96, step: 1) {
                     Text("W \(frame.width, specifier: "%.0f")")
                         .font(.subheadline.weight(.semibold))
                 }
-                Stepper(value: $frame.height, in: 6...72, step: 1) {
+                Stepper(value: $frame.height, in: 4...96, step: 1) {
                     Text("H \(frame.height, specifier: "%.0f")")
                         .font(.subheadline.weight(.semibold))
                 }

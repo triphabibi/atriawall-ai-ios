@@ -1,4 +1,7 @@
 import Foundation
+import CoreGraphics
+
+// MARK: - Units
 
 enum WallUnit: String, Codable, CaseIterable, Identifiable {
     case inches
@@ -6,7 +9,150 @@ enum WallUnit: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
     var symbol: String { self == .inches ? "in" : "cm" }
+    var name: String { self == .inches ? "Inches" : "Centimeters" }
+
+    /// Convert a value expressed in inches to this unit.
+    func fromInches(_ inches: Double) -> Double {
+        self == .inches ? inches : inches * 2.54
+    }
+
+    /// Convert a value expressed in this unit back to inches.
+    func toInches(_ value: Double) -> Double {
+        self == .inches ? value : value / 2.54
+    }
 }
+
+// MARK: - Geometry helpers
+
+/// A normalized point (0...1 in both axes) that survives Codable and screen scaling.
+struct NormalizedPoint: Codable, Equatable, Hashable {
+    var x: Double
+    var y: Double
+
+    init(x: Double, y: Double) {
+        self.x = x
+        self.y = y
+    }
+
+    init(_ point: CGPoint) {
+        x = Double(point.x)
+        y = Double(point.y)
+    }
+
+    var cgPoint: CGPoint { CGPoint(x: x, y: y) }
+
+    func scaled(to size: CGSize) -> CGPoint {
+        CGPoint(x: CGFloat(x) * size.width, y: CGFloat(y) * size.height)
+    }
+}
+
+// MARK: - Captured wall
+
+/// How the real-world dimensions of a captured wall were established.
+enum WallMeasureSource: String, Codable, CaseIterable, Identifiable {
+    case manual        // typed by the person
+    case arMeasured    // measured with ARKit raycasting
+    case estimated     // inferred by the AI from the photo + a reference
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .manual: return "Entered manually"
+        case .arMeasured: return "Measured with AR"
+        case .estimated: return "AI estimate"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .manual: return "pencil"
+        case .arMeasured: return "arkit"
+        case .estimated: return "sparkles"
+        }
+    }
+}
+
+/// A real photo of a wall the person wants to design on, plus everything the
+/// app has learned about it (size, whether it wraps a corner, perspective
+/// corners, and any AI render produced from it).
+struct CapturedWall: Identifiable, Codable, Equatable {
+    var id: UUID
+    var label: String
+    /// Original photo of the wall, stored on disk (see PhotoStore).
+    var photoFilename: String?
+    /// Photorealistic AI render of this wall with the gallery design applied.
+    var renderFilename: String?
+    /// Real-world dimensions, always persisted in inches for consistency.
+    var widthInches: Double
+    var heightInches: Double
+    var measureSource: WallMeasureSource
+    /// True when the shot wraps around a room corner (two wall planes).
+    var isCornerWall: Bool
+    /// Four perspective corners (normalized) used to keep designs aligned on
+    /// angled or corner shots. Order: topLeft, topRight, bottomRight, bottomLeft.
+    var perspectiveQuad: [NormalizedPoint]
+    var notes: String
+    var createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        label: String = "New Wall",
+        photoFilename: String? = nil,
+        renderFilename: String? = nil,
+        widthInches: Double = 144,
+        heightInches: Double = 96,
+        measureSource: WallMeasureSource = .manual,
+        isCornerWall: Bool = false,
+        perspectiveQuad: [NormalizedPoint] = CapturedWall.defaultQuad,
+        notes: String = "",
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.label = label
+        self.photoFilename = photoFilename
+        self.renderFilename = renderFilename
+        self.widthInches = widthInches
+        self.heightInches = heightInches
+        self.measureSource = measureSource
+        self.isCornerWall = isCornerWall
+        self.perspectiveQuad = perspectiveQuad
+        self.notes = notes
+        self.createdAt = createdAt
+    }
+
+    static let defaultQuad: [NormalizedPoint] = [
+        NormalizedPoint(x: 0.05, y: 0.05),
+        NormalizedPoint(x: 0.95, y: 0.05),
+        NormalizedPoint(x: 0.95, y: 0.95),
+        NormalizedPoint(x: 0.05, y: 0.95)
+    ]
+
+    var aspectRatio: Double {
+        heightInches > 0 ? widthInches / heightInches : 1.5
+    }
+
+    var hasPhoto: Bool { photoFilename != nil }
+    var hasRender: Bool { renderFilename != nil }
+
+    /// A friendly size class the AI and UI can reason about.
+    var sizeClass: String {
+        let area = widthInches * heightInches
+        switch area {
+        case ..<3000: return "Compact wall"
+        case 3000..<9000: return "Standard wall"
+        default: return "Large feature wall"
+        }
+    }
+
+    func dimensionLabel(in unit: WallUnit) -> String {
+        let w = unit.fromInches(widthInches)
+        let h = unit.fromInches(heightInches)
+        return "\(Int(w.rounded())) × \(Int(h.rounded())) \(unit.symbol)"
+    }
+}
+
+// MARK: - Frames
 
 struct FrameItem: Identifiable, Codable, Equatable {
     var id: UUID
@@ -68,6 +214,8 @@ struct NailPosition: Identifiable, Equatable {
     var nailY: Double
 }
 
+// MARK: - Project
+
 struct WallProject: Identifiable, Codable, Equatable {
     var id: UUID
     var name: String
@@ -79,6 +227,14 @@ struct WallProject: Identifiable, Codable, Equatable {
     var frames: [FrameItem]
     var notes: String
     var lastEdited: Date
+    /// Real captured walls attached to this project (photos + measurements).
+    var walls: [CapturedWall]
+    /// The wall the studio is currently designing on.
+    var activeWallID: UUID?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, room, style, wallWidth, wallHeight, unit, frames, notes, lastEdited, walls, activeWallID
+    }
 
     init(
         id: UUID = UUID(),
@@ -90,7 +246,9 @@ struct WallProject: Identifiable, Codable, Equatable {
         unit: WallUnit = .inches,
         frames: [FrameItem],
         notes: String = "",
-        lastEdited: Date = Date()
+        lastEdited: Date = Date(),
+        walls: [CapturedWall] = [],
+        activeWallID: UUID? = nil
     ) {
         self.id = id
         self.name = name
@@ -102,6 +260,30 @@ struct WallProject: Identifiable, Codable, Equatable {
         self.frames = frames
         self.notes = notes
         self.lastEdited = lastEdited
+        self.walls = walls
+        self.activeWallID = activeWallID
+    }
+
+    // Tolerant decoding so projects saved before multi-wall support still load.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        room = try container.decode(String.self, forKey: .room)
+        style = try container.decode(String.self, forKey: .style)
+        wallWidth = try container.decode(Double.self, forKey: .wallWidth)
+        wallHeight = try container.decode(Double.self, forKey: .wallHeight)
+        unit = try container.decodeIfPresent(WallUnit.self, forKey: .unit) ?? .inches
+        frames = try container.decodeIfPresent([FrameItem].self, forKey: .frames) ?? []
+        notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
+        lastEdited = try container.decodeIfPresent(Date.self, forKey: .lastEdited) ?? Date()
+        walls = try container.decodeIfPresent([CapturedWall].self, forKey: .walls) ?? []
+        activeWallID = try container.decodeIfPresent(UUID.self, forKey: .activeWallID)
+    }
+
+    var activeWall: CapturedWall? {
+        guard let activeWallID else { return walls.first }
+        return walls.first(where: { $0.id == activeWallID }) ?? walls.first
     }
 
     var nailPositions: [NailPosition] {
@@ -123,6 +305,10 @@ struct WallProject: Identifiable, Codable, Equatable {
         frames.count == 1 ? "1 piece" : "\(frames.count) pieces"
     }
 
+    var wallCountLabel: String {
+        walls.count == 1 ? "1 wall" : "\(walls.count) walls"
+    }
+
     var editedSummary: String {
         lastEdited.formatted(date: .abbreviated, time: .omitted)
     }
@@ -131,6 +317,50 @@ struct WallProject: Identifiable, Codable, Equatable {
         lastEdited = Date()
     }
 
+    // MARK: Wall management
+
+    mutating func addWall(_ wall: CapturedWall) {
+        walls.append(wall)
+        activeWallID = wall.id
+        // Keep the abstract wall dimensions in sync with the captured wall so
+        // the layout math, templates, and hanging guide use real measurements.
+        wallWidth = wall.widthInches
+        wallHeight = wall.heightInches
+        touch()
+    }
+
+    mutating func updateWall(_ wall: CapturedWall) {
+        guard let index = walls.firstIndex(where: { $0.id == wall.id }) else { return }
+        walls[index] = wall
+        if wall.id == activeWallID {
+            wallWidth = wall.widthInches
+            wallHeight = wall.heightInches
+        }
+        touch()
+    }
+
+    mutating func selectWall(_ id: UUID) {
+        guard let wall = walls.first(where: { $0.id == id }) else { return }
+        activeWallID = id
+        wallWidth = wall.widthInches
+        wallHeight = wall.heightInches
+        touch()
+    }
+
+    mutating func removeWall(_ id: UUID) {
+        walls.removeAll { $0.id == id }
+        if activeWallID == id {
+            activeWallID = walls.first?.id
+            if let wall = walls.first {
+                wallWidth = wall.widthInches
+                wallHeight = wall.heightInches
+            }
+        }
+        touch()
+    }
+
+    // MARK: Frame management
+
     mutating func addFrame() {
         let number = frames.count + 1
         frames.append(
@@ -138,8 +368,8 @@ struct WallProject: Identifiable, Codable, Equatable {
                 title: "Piece \(number)",
                 x: max(4, wallWidth * 0.18),
                 y: max(4, wallHeight * 0.18),
-                width: 16,
-                height: 20,
+                width: min(16, wallWidth * 0.16),
+                height: min(20, wallHeight * 0.22),
                 frameColorHex: ["241F1C", "544A3F", "E7DCC9", "A56A43"].randomElement() ?? "241F1C",
                 artColorHex: ["D8C6A5", "A9B9B1", "C38B67", "8796A3"].randomElement() ?? "D8C6A5"
             )
@@ -211,6 +441,8 @@ struct WallProject: Identifiable, Codable, Equatable {
     ]
 }
 
+// MARK: - Templates
+
 struct TemplateFrame: Identifiable, Codable, Equatable {
     var id = UUID()
     var xRatio: Double
@@ -279,6 +511,8 @@ struct WallTemplate: Identifiable, Codable, Equatable {
         )
     ]
 }
+
+// MARK: - AI layout plan
 
 struct AIFrameSuggestion: Codable, Equatable {
     var title: String

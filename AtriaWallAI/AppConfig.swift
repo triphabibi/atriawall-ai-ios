@@ -10,6 +10,12 @@ enum AppConfig {
         return value.isEmpty ? "gemini-2.5-flash" : value
     }
 
+    /// Image-capable model used to render designs onto real wall photos.
+    static var geminiImageModel: String {
+        let value = sanitizedInfoValue("GeminiImageModel")
+        return value.isEmpty ? "gemini-2.5-flash-image" : value
+    }
+
     static var usesLocalAI: Bool {
         let environment = ProcessInfo.processInfo.environment
         return environment["ATRIAWALL_USE_LOCAL_AI"] == "1"
