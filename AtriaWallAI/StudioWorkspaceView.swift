@@ -297,9 +297,9 @@ struct WallCanvasView: View {
                 .overlay(alignment: .topLeading) {
                     Text("\(project.wallWidth, specifier: "%.0f") \(project.unit.symbol)")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(wallImage == nil ? .secondary : .white)
+                        .foregroundStyle(wallImage == nil ? Color.secondary : Color.white)
                         .padding(6)
-                        .background(wallImage == nil ? .clear : .black.opacity(0.3), in: Capsule())
+                        .background(wallImage == nil ? Color.clear : Color.black.opacity(0.3), in: Capsule())
                         .padding(6)
                 }
                 .padding(14)

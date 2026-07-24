@@ -51,10 +51,8 @@ enum PhotoStore {
 
     static func data(named filename: String?) -> Data? {
         guard let filename else { return nil }
-        do {
-            let url = try imageDirectory().appendingPathComponent(filename)
-            return try? Data(contentsOf: url)
-        }
+        guard let url = try? imageDirectory().appendingPathComponent(filename) else { return nil }
+        return try? Data(contentsOf: url)
     }
 
     // MARK: Deleting
