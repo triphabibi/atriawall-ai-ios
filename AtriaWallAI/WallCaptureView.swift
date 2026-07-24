@@ -79,19 +79,23 @@ struct WallCaptureView: View {
                                       subtitle: "Take a live photo or import shots of the walls you want to design.",
                                       systemImage: "camera.viewfinder")
 
-                        captureButton(title: "Take a Live Photo",
-                                      subtitle: "Point at the wall and capture it now",
-                                      systemImage: "camera.fill",
-                                      style: .copper) {
+                        CaptureActionCard(
+                            title: "Take a Live Photo",
+                            subtitle: "Point at the wall and capture it now",
+                            systemImage: "camera.fill",
+                            isPrimary: true
+                        ) {
                             errorMessage = nil
                             showCamera = true
                         }
 
                         PhotosPicker(selection: $pickerItems, maxSelectionCount: 6, matching: .images) {
-                            captureLabel(title: "Attach Wall Photos",
-                                         subtitle: "Import up to 6 walls from your library",
-                                         systemImage: "photo.on.rectangle.angled",
-                                         primary: false)
+                            CaptureActionCard(
+                                title: "Attach Wall Photos",
+                                subtitle: "Import up to 6 walls from your library",
+                                systemImage: "photo.on.rectangle.angled",
+                                isPrimary: false
+                            ) {}
                         }
                         .buttonStyle(.plain)
                     }
@@ -194,35 +198,8 @@ struct WallCaptureView: View {
 
     // MARK: Building blocks
 
-    private func captureButton(title: String, subtitle: String, systemImage: String, style: AtriaButton.Style, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            captureLabel(title: title, subtitle: subtitle, systemImage: systemImage, primary: true)
-        }
-        .buttonStyle(.plain)
-    }
-
     private func captureLabel(title: String, subtitle: String, systemImage: String, primary: Bool) -> some View {
-        HStack(spacing: 14) {
-            Image(systemName: systemImage)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(primary ? .white : Color.atriaInk)
-                .frame(width: 48, height: 48)
-                .background(captureLabelBackground(primary), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(.subheadline, design: .rounded, weight: .bold))
-                    .foregroundStyle(Color.atriaInk)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.secondary)
-        }
-        .padding(12)
-        .background(.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        CaptureActionCard(title: title, subtitle: subtitle, systemImage: systemImage, isPrimary: primary) {}
     }
 
     private func dimensionField(title: String, text: Binding<String>) -> some View {
@@ -316,12 +293,47 @@ struct WallCaptureView: View {
         String(format: value.rounded() == value ? "%.0f" : "%.1f", value)
     }
 
-    private func captureLabelBackground(_ primary: Bool) -> AnyShapeStyle {
-        if primary {
-            return AnyShapeStyle(LinearGradient(colors: [Color.atriaCopper, Color.atriaCopperDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
-        } else {
-            return AnyShapeStyle(Color.white.opacity(0.7))
+}
+
+private struct CaptureActionCard: View {
+    let title: String
+    let subtitle: String
+    let systemImage: String
+    let isPrimary: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(isPrimary ? .white : Color.atriaInk)
+                    .frame(width: 48, height: 48)
+                    .background(backgroundStyle, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(Color.atriaInk)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(12)
+            .background(.white.opacity(0.55), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
+        .buttonStyle(.plain)
+    }
+
+    private var backgroundStyle: some ShapeStyle {
+        if isPrimary {
+            return AnyShapeStyle(LinearGradient(colors: [Color.atriaCopper, Color.atriaCopperDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
+        }
+        return AnyShapeStyle(Color.white.opacity(0.7))
     }
 }
 

@@ -72,44 +72,20 @@ struct PaywallView: View {
 
     private var planSection: some View {
         GlassPanel {
-            VStack(spacing: 12) {
-                ForEach(subscriptions.plans) { plan in
-                    PlanCard(plan: plan, selected: selectedPlanID == plan.id) {
-                        selectedPlanID = plan.id
-                    }
-                }
-
-                AtriaButton(title: purchaseButtonTitle, systemImage: "lock.open.fill") {
-                    Task { await purchaseSelectedPlan() }
-                }
-                .accessibilityIdentifier("paywall.continue")
-
-                Button {
-                    Task { await subscriptions.restore() }
-                } label: {
-                    Text("Restore Purchases")
-                        .font(.footnote.weight(.semibold))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Color.atriaInk.opacity(0.72))
-                .accessibilityIdentifier("paywall.restore")
-
-                statusText
-            }
+            PlanSectionView(
+                selectedPlanID: $selectedPlanID,
+                subscriptions: subscriptions,
+                purchaseButtonTitle: purchaseButtonTitle,
+                purchaseAction: { await purchaseSelectedPlan() },
+                restoreAction: { await subscriptions.restore() },
+                statusText: AnyView(statusText)
+            )
         }
     }
 
     private var featureSection: some View {
         GlassPanel {
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Included")
-                    .font(.system(.headline, design: .rounded, weight: .bold))
-                FeatureRow(icon: "sparkles", text: "Unlimited AI-generated gallery wall plans")
-                FeatureRow(icon: "rectangle.3.group", text: "Premium templates for grids, stairs, salon walls, and triptychs")
-                FeatureRow(icon: "ruler", text: "Exact nail positions, center lines, and paper template guide")
-                FeatureRow(icon: "arkit", text: "AR preview overlay for real wall checks")
-                FeatureRow(icon: "square.and.arrow.up", text: "Shareable install checklist and project summary")
-            }
+            FeatureSectionView()
         }
     }
 
@@ -153,6 +129,56 @@ struct PaywallView: View {
     private func purchaseSelectedPlan() async {
         guard let selectedPlan else { return }
         await subscriptions.purchase(selectedPlan)
+    }
+}
+
+private struct PlanSectionView: View {
+    @Binding var selectedPlanID: String?
+    let subscriptions: SubscriptionManager
+    let purchaseButtonTitle: String
+    let purchaseAction: () async -> Void
+    let restoreAction: () async -> Void
+    let statusText: AnyView
+
+    var body: some View {
+        VStack(spacing: 12) {
+            ForEach(subscriptions.plans) { plan in
+                PlanCard(plan: plan, selected: selectedPlanID == plan.id) {
+                    selectedPlanID = plan.id
+                }
+            }
+
+            AtriaButton(title: purchaseButtonTitle, systemImage: "lock.open.fill") {
+                Task { await purchaseAction() }
+            }
+            .accessibilityIdentifier("paywall.continue")
+
+            Button {
+                Task { await restoreAction() }
+            } label: {
+                Text("Restore Purchases")
+                    .font(.footnote.weight(.semibold))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Color.atriaInk.opacity(0.72))
+            .accessibilityIdentifier("paywall.restore")
+
+            statusText
+        }
+    }
+}
+
+private struct FeatureSectionView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Included")
+                .font(.system(.headline, design: .rounded, weight: .bold))
+            FeatureRow(icon: "sparkles", text: "Unlimited AI-generated gallery wall plans")
+            FeatureRow(icon: "rectangle.3.group", text: "Premium templates for grids, stairs, salon walls, and triptychs")
+            FeatureRow(icon: "ruler", text: "Exact nail positions, center lines, and paper template guide")
+            FeatureRow(icon: "arkit", text: "AR preview overlay for real wall checks")
+            FeatureRow(icon: "square.and.arrow.up", text: "Shareable install checklist and project summary")
+        }
     }
 }
 

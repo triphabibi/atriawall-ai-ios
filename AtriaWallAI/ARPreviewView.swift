@@ -76,38 +76,8 @@ private struct ARLayoutOverlay: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let scale = min(
-                Double(max(24, geometry.size.width - 32) / CGFloat(project.wallWidth)),
-                Double(max(24, geometry.size.height - 28) / CGFloat(project.wallHeight))
-            )
-            let wallSize = CGSize(width: CGFloat(project.wallWidth * scale), height: CGFloat(project.wallHeight * scale))
-
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(.white.opacity(0.20))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .stroke(.white.opacity(0.54), lineWidth: 1)
-                    )
-
-                ForEach(project.frames) { frame in
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(Color(hex: frame.frameColorHex).opacity(0.88))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2, style: .continuous)
-                                .fill(Color(hex: frame.artColorHex).opacity(0.9))
-                                .padding(5)
-                        )
-                        .frame(width: CGFloat(frame.width * scale), height: CGFloat(frame.height * scale))
-                        .position(
-                            x: CGFloat((frame.x + frame.width / 2) * scale),
-                            y: CGFloat((frame.y + frame.height / 2) * scale)
-                        )
-                        .rotationEffect(.degrees(frame.rotation))
-                }
-            }
-            .frame(width: wallSize.width, height: wallSize.height)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            let layout = AROverlayLayout.layout(for: project, in: geometry.size)
+            AROverlayCanvas(project: project, layout: layout)
         }
         .padding(12)
         .background(.black.opacity(0.36), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
@@ -117,6 +87,62 @@ private struct ARLayoutOverlay: View {
                 .foregroundStyle(.white)
                 .padding(10)
         }
+    }
+}
+
+private struct AROverlayCanvas: View {
+    var project: WallProject
+    var layout: AROverlayLayout
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.white.opacity(0.20))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .stroke(.white.opacity(0.54), lineWidth: 1)
+                )
+
+            ForEach(project.frames) { frame in
+                ARFramePreview(frame: frame, layout: layout)
+            }
+        }
+        .frame(width: layout.wallSize.width, height: layout.wallSize.height)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ARFramePreview: View {
+    var frame: FrameItem
+    var layout: AROverlayLayout
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 3, style: .continuous)
+            .fill(Color(hex: frame.frameColorHex).opacity(0.88))
+            .overlay(
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(Color(hex: frame.artColorHex).opacity(0.9))
+                    .padding(5)
+            )
+            .frame(width: CGFloat(frame.width * layout.scale), height: CGFloat(frame.height * layout.scale))
+            .position(
+                x: CGFloat((frame.x + frame.width / 2) * layout.scale),
+                y: CGFloat((frame.y + frame.height / 2) * layout.scale)
+            )
+            .rotationEffect(.degrees(frame.rotation))
+    }
+}
+
+struct AROverlayLayout {
+    let scale: Double
+    let wallSize: CGSize
+
+    static func layout(for project: WallProject, in size: CGSize) -> AROverlayLayout {
+        let widthScale = max(24, size.width - 32) / CGFloat(project.wallWidth)
+        let heightScale = max(24, size.height - 28) / CGFloat(project.wallHeight)
+        let scale = min(Double(widthScale), Double(heightScale))
+        let wallSize = CGSize(width: CGFloat(project.wallWidth * scale), height: CGFloat(project.wallHeight * scale))
+        return AROverlayLayout(scale: scale, wallSize: wallSize)
     }
 }
 

@@ -92,7 +92,7 @@ jobs:
           xcodebuild \
             -project AtriaWallAI.xcodeproj \
             -scheme AtriaWallAI \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             test \
             CODE_SIGNING_ALLOWED=NO
 
@@ -134,7 +134,7 @@ jobs:
             --upload-app \
             --file "$ipa_path" \
             --type ios \
-            --apiKeyPath "$RUNNER_TEMP/private_keys" \
+            --apiKeyPath "$ASC_KEY_PATH" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
 
