@@ -207,8 +207,7 @@ struct WallCaptureView: View {
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(primary ? .white : Color.atriaInk)
                 .frame(width: 48, height: 48)
-                .background(primary ? AnyShapeStyle(LinearGradient(colors: [Color.atriaCopper, Color.atriaCopperDeep], startPoint: .topLeading, endPoint: .bottomTrailing)) : AnyShapeStyle(Color.white.opacity(0.7)),
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .background(captureLabelBackground(primary), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -315,6 +314,14 @@ struct WallCaptureView: View {
 
     private func format(_ value: Double) -> String {
         String(format: value.rounded() == value ? "%.0f" : "%.1f", value)
+    }
+
+    private func captureLabelBackground(_ primary: Bool) -> AnyShapeStyle {
+        if primary {
+            return AnyShapeStyle(LinearGradient(colors: [Color.atriaCopper, Color.atriaCopperDeep], startPoint: .topLeading, endPoint: .bottomTrailing))
+        } else {
+            return AnyShapeStyle(Color.white.opacity(0.7))
+        }
     }
 }
 
